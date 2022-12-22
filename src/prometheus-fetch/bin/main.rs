@@ -1,4 +1,7 @@
+mod constants;
+mod usage;
+
 fn main() {
-    println!("prometheus-fetch");
+    usage::show_usage();
 }
 
