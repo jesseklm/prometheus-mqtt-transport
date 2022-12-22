@@ -5,4 +5,13 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bin]]
+name = "prometheus-fetch"
+path = "src/prometheus-fetch/bin/main.rs"
+
+[[bin]]
+name = "mqtt-export"
+path = "src/mqtt-export/bin/main.rs"
+
 [dependencies]
+
