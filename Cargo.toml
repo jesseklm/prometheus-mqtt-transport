@@ -7,11 +7,11 @@ edition = "2021"
 
 [[bin]]
 name = "prometheus-fetch"
-path = "src/prometheus-fetch/bin/main.rs"
+path = "src/prometheus-fetch/main.rs"
 
 [[bin]]
 name = "mqtt-export"
-path = "src/mqtt-export/bin/main.rs"
+path = "src/mqtt-export/main.rs"
 
 [lib]
 name = "global"
