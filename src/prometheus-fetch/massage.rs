@@ -44,9 +44,7 @@ pub fn massage_raw_to_message(
             };
             let mname = fields[2];
             let fdata = fields[3..].join(" ");
-            let entry = metrics
-                .entry(mname)
-                .or_default();
+            let entry = metrics.entry(mname).or_default();
             if ftype == "HELP" {
                 entry.help = fdata;
             } else {
@@ -59,9 +57,7 @@ pub fn massage_raw_to_message(
                 line.splitn(2, ' ').collect()
             };
             let mname = mvec[0];
-            let entry = metrics
-                .entry(mname)
-                .or_default();
+            let entry = metrics.entry(mname).or_default();
             entry.metric_name = mname.to_string();
             entry.data.push(line.to_string());
         }

@@ -43,7 +43,9 @@ fn mqtt_default_client_id() -> String {
         .collect()
 }
 
-pub fn connection_builder(cfg: &MQTT) -> Result<paho_mqtt::connect_options::ConnectOptions, Box<dyn Error>> {
+pub fn connection_builder(
+    cfg: &MQTT,
+) -> Result<paho_mqtt::connect_options::ConnectOptions, Box<dyn Error>> {
     let mut sslopts = paho_mqtt::ssl_options::SslOptionsBuilder::new();
     if cfg.broker.starts_with("ssl://") || cfg.broker.starts_with("tls://") {
         if !cfg.ca_cert.is_empty() {
@@ -81,4 +83,3 @@ pub fn client_builder(cfg: &MQTT) -> Result<paho_mqtt::client::Client, Box<dyn E
     let client = paho_mqtt::client::Client::new(client_opts)?;
     Ok(client)
 }
-
