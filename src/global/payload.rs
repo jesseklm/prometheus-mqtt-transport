@@ -17,6 +17,12 @@ pub struct Payload {
     pub metric_name: String,
 }
 
+impl Default for Message {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Message {
     pub fn new() -> Self {
         Message {
@@ -24,6 +30,12 @@ impl Message {
             name: String::new(),
             payload: Vec::<Payload>::new(),
         }
+    }
+}
+
+impl Default for Payload {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

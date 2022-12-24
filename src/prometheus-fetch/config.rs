@@ -70,7 +70,7 @@ fn validate(cfg: &Configuration) -> Result<(), Box<dyn Error>> {
         bail!("invalid MQTT QoS setting");
     }
 
-    if cfg.mqtt.topic.is_empty() || cfg.mqtt.topic.contains("+") || cfg.mqtt.topic.contains("#") {
+    if cfg.mqtt.topic.is_empty() || cfg.mqtt.topic.contains('+') || cfg.mqtt.topic.contains('#') {
         bail!("invalid MQTT topic")
     }
 

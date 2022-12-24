@@ -1,6 +1,6 @@
 [package]
 name = "prometheus-mqtt-transport"
-version = "0.1.0-20221223"
+version = "0.1.0-20221224"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -30,4 +30,4 @@ serde = { version = "1.0.148", features = ["derive"] }
 serde_json = "1.0.89"
 serde_yaml = "0.9.14"
 simple-error = "0.2.3"
-
+url = "2.3.1"

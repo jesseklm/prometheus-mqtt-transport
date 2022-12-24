@@ -23,7 +23,7 @@ pub fn run(
                 Some(v) => v,
                 None => cfg.global.timeout,
             };
-            if let None = scrape.http_client {
+            if scrape.http_client.is_none() {
                 scrape.http_client = Some(http::build_http_client(timeout)?);
             }
 
@@ -56,7 +56,7 @@ pub fn run(
                         panic!("Uninitialized HTTP client for scrape {}", scrape.name);
                     }
                 };
-                let raw = match http::get(&cli, &scrape.url) {
+                let raw = match http::get(cli, &scrape.url) {
                     Ok(v) => v,
                     Err(e) => {
                         error!("scraping of {} failed: {}", scrape.url, e);

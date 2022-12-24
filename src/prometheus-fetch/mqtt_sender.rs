@@ -9,5 +9,6 @@ pub fn run(
 ) -> Result<(), Box<dyn Error>> {
     loop {
         let _data = receiver.recv()?;
+        println!("{:?}", cfg);
     }
 }

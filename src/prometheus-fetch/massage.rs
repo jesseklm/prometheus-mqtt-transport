@@ -14,7 +14,7 @@ pub fn massage_raw_to_message(
 ) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut payload_data = global::payload::Message {
         name: name.to_string(),
-        expiration: expiration,
+        expiration,
         payload: Vec::<global::payload::Payload>::new(),
     };
     let mut metrics: HashMap<&str, global::payload::Payload> = HashMap::new();
@@ -22,7 +22,7 @@ pub fn massage_raw_to_message(
     for raw_line in raw.lines() {
         let line = raw_line.trim();
 
-        if line.starts_with("#") {
+        if line.starts_with('#') {
             let fields: Vec<&str> = line.split_ascii_whitespace().collect();
             // Prometheus HELP/TYPE fields have *at least* four fields
             if fields.len() < 4 {
@@ -46,23 +46,22 @@ pub fn massage_raw_to_message(
             let fdata = fields[3..].join(" ");
             let entry = metrics
                 .entry(mname)
-                .or_insert(global::payload::Payload::new());
+                .or_default();
             if ftype == "HELP" {
                 entry.help = fdata;
             } else {
                 entry.data_type = fdata;
             }
         } else {
-            let mvec: Vec<&str>;
-            if line.contains("{") {
-                mvec = line.splitn(2, "{").collect();
+            let mvec: Vec<&str> = if line.contains('{') {
+                line.splitn(2, '{').collect()
             } else {
-                mvec = line.splitn(2, " ").collect();
-            }
+                line.splitn(2, ' ').collect()
+            };
             let mname = mvec[0];
             let entry = metrics
                 .entry(mname)
-                .or_insert(global::payload::Payload::new());
+                .or_default();
             entry.metric_name = mname.to_string();
             entry.data.push(line.to_string());
         }
