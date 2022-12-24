@@ -78,7 +78,7 @@ pub fn massage_raw_to_message(
         payload = compress_data(payload_str)?;
         let after = payload.len();
 
-        info!("MQTT payload data compressed using gzip in {} seconds, {:.2}% saved ({} bytes -> {} bytes)", cmprs.elapsed().as_secs_f64(), 100.0_f64 * (before as f64 - after as f64)/before as f64, before, after);
+        info!("'{}': payload data compressed using gzip in {} seconds, {:.2}% saved ({} bytes -> {} bytes)", name, cmprs.elapsed().as_secs_f64(), 100.0_f64 * (before as f64 - after as f64)/before as f64, before, after);
     } else {
         payload = payload_str.into_bytes();
     }

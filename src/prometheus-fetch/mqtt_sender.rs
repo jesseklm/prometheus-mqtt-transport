@@ -38,6 +38,13 @@ pub fn run(
                 continue;
             }
         }
+
+        info!(
+            "sending {} bytes of data to topic {} on {}",
+            data.len(),
+            &cfg.mqtt.topic,
+            &cfg.mqtt.broker
+        );
         let msg = paho_mqtt::message::Message::new(&cfg.mqtt.topic, data, cfg.mqtt.qos);
         if let Err(e) = mqtt_client.publish(msg) {
             error!("sending message to MQTT broker failed - {}", e);

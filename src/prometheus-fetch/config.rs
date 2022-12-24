@@ -1,4 +1,5 @@
 use crate::constants;
+use log::debug;
 use serde::Deserialize;
 use simple_error::bail;
 use std::collections::HashSet;
@@ -62,7 +63,13 @@ pub fn parse_config_file(f: &str) -> Result<Configuration, Box<dyn Error>> {
     validate(&parsed)?;
 
     parsed.mqtt.topic = parsed.mqtt.topic.trim_end_matches('/').to_string();
-    parsed.mqtt.topic = format!("{}/{:?}", parsed.mqtt.topic, gethostname::gethostname());
+    parsed.mqtt.topic = format!(
+        "{}/{}",
+        parsed.mqtt.topic,
+        gethostname::gethostname().into_string().unwrap()
+    );
+
+    debug!("parsed configuration: {:?}", parsed);
 
     Ok(parsed)
 }

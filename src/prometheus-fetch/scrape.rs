@@ -50,6 +50,8 @@ pub fn run(
                     scrape.name
                 );
                 // scrape data
+                info!("'{}': scraping data from {}", scrape.name, scrape.url);
+
                 let cli = match &scrape.http_client {
                     Some(v) => v,
                     None => {
@@ -64,7 +66,8 @@ pub fn run(
                     }
                 };
                 info!(
-                    "scraped {} bytes from {} for {} in {} seconds",
+                    "'{}': scraped {} bytes from {} for {} in {} seconds",
+                    scrape.name,
                     raw.len(),
                     scrape.url,
                     scrape.name,
