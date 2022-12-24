@@ -18,7 +18,7 @@ pub struct MQTT {
     pub insecure_ssl: bool,
     pub password: String,
     #[serde(default)]
-    pub qos: u8,
+    pub qos: i32,
     #[serde(default = "mqtt_default_reconnect_timeout")]
     pub reconnect_timeout: u64,
     #[serde(default = "mqtt_default_timeout")]
