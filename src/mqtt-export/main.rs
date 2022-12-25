@@ -1,3 +1,60 @@
+mod constants;
+mod usage;
+
+use getopts::Options;
+use log::{debug, error};
+use std::{env, process};
+
 fn main() {
-    println!("mqtt-export");
+    let argv: Vec<String> = env::args().collect();
+    let mut options = Options::new();
+    let mut log_level = log::LevelFilter::Info;
+
+    options.optflag("D", "debug", "Enable debug logs");
+    options.optflag("V", "version", "Show version information");
+    options.optflag("h", "help", "Show help text");
+    options.optopt(
+        "c",
+        "config",
+        "Configuration file",
+        constants::DEFAULT_CONFIG_FILE,
+    );
+    options.optflag("q", "quiet", "Quiet operation");
+
+    let opts = match options.parse(&argv[1..]) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Error: Can't parse command line arguments: {}", e);
+            println!();
+            usage::show_usage();
+            process::exit(1);
+        }
+    };
+
+    if opts.opt_present("h") {
+        usage::show_usage();
+        process::exit(0)
+    };
+
+    if opts.opt_present("V") {
+        global::usage::show_version();
+        process::exit(0);
+    };
+
+    if opts.opt_present("D") {
+        log_level = log::LevelFilter::Debug;
+    };
+
+    if opts.opt_present("q") {
+        log_level = log::LevelFilter::Warn;
+    };
+
+    let config_file = match opts.opt_str("c") {
+        Some(v) => v,
+        None => constants::DEFAULT_CONFIG_FILE.to_string(),
+    };
+
+    // XXX: Should never fail
+    debug!("initialising logging");
+    global::logging::init(log_level).unwrap();
 }
