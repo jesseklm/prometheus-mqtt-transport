@@ -39,6 +39,7 @@ pub fn run(
             }
         }
 
+        let pubt = std::time::Instant::now();
         info!(
             "sending {} bytes of data to topic {} on {}",
             data.len(),
@@ -50,5 +51,9 @@ pub fn run(
             error!("sending message to MQTT broker failed - {}", e);
             continue;
         }
+        info!(
+            "MQTT message send in {} seconds",
+            pubt.elapsed().as_secs_f64()
+        );
     }
 }
