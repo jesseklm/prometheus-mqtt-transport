@@ -88,7 +88,4 @@ fn main() {
         error!("can't start scraping process: {}", e);
         process::exit(1);
     }
-
-    drop(send);
-    println!("{}", chrono::Local::now().timestamp());
 }
