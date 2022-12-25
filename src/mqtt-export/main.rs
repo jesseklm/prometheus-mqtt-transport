@@ -1,9 +1,12 @@
 mod config;
 mod constants;
+mod data;
+mod http;
 mod usage;
 
 use getopts::Options;
 use log::{debug, error};
+use std::sync::mpsc;
 use std::{env, process};
 
 fn main() {
@@ -65,5 +68,13 @@ fn main() {
             error!("error while parsing configuration file: {}", e);
             process::exit(1);
         }
+    };
+
+    let (data_send, data_recv) = mpsc::channel::<data::Data>();
+    let (http_send, http_recv) = mpsc::channel::<String>();
+
+    match data::handler(data_recv, http_send) {
+        Err(e) => panic!("{}", e),
+        Ok(_) => process::exit(0),
     };
 }
