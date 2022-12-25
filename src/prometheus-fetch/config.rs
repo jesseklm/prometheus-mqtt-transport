@@ -27,7 +27,6 @@ pub struct Global {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Scrape {
-    pub compress: Option<bool>,
     #[serde(skip)]
     pub http_client: Option<reqwest::blocking::Client>,
     pub interval: Option<i64>,

@@ -16,6 +16,8 @@ pub fn run(
 
     loop {
         now = chrono::Local::now().timestamp();
+        let mut data: Vec<global::payload::Message> = Vec::new();
+
         // Iterate of scrape list
         for scrape in cfg.scrape.iter_mut() {
             // Even the scrape interval has not passed, create a HTTP client if it does not exist
@@ -35,11 +37,6 @@ pub fn run(
 
             if (now - scrape.last_scrape) >= interval {
                 let scrp = std::time::Instant::now();
-
-                let compress = match scrape.compress {
-                    Some(v) => v,
-                    None => cfg.global.compress,
-                };
 
                 debug!(
                     "{} - {} == {}, interval is {} -> start scraping {}",
@@ -75,11 +72,8 @@ pub fn run(
                 );
 
                 // Massage raw Prometheus data into MQTT payload
-                let data = massage::massage_raw_to_message(&raw, &scrape.name, interval, compress)?;
-
-                // send to MQTT thread
-                debug!("sending data to MQTT thread");
-                sender.send(data)?;
+                let parsed = massage::parse_scrape_data(&raw, &scrape.name, interval)?;
+                data.push(parsed);
 
                 debug!("updating scrape.last_scrape stamp to {}", now);
                 scrape.last_scrape = now;
@@ -94,6 +88,12 @@ pub fn run(
                 );
             }
         }
+        if !data.is_empty() {
+            // send to MQTT thread
+            debug!("sending data to MQTT thread");
+            let mqtt_msg = massage::build_mqtt_message(&data, cfg.global.compress)?;
+            sender.send(mqtt_msg)?;
+        };
         thread::sleep(one_second);
     }
 }

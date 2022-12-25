@@ -6,13 +6,12 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::io::prelude::*;
 
-pub fn massage_raw_to_message(
+pub fn parse_scrape_data(
     raw: &str,
     name: &str,
     expiration: i64,
-    compress: bool,
-) -> Result<Vec<u8>, Box<dyn Error>> {
-    let mut payload_data = global::payload::Message {
+) -> Result<global::payload::Message, Box<dyn Error>> {
+    let mut message = global::payload::Message {
         name: name.to_string(),
         expiration,
         payload: Vec::<global::payload::Payload>::new(),
@@ -64,10 +63,17 @@ pub fn massage_raw_to_message(
     }
 
     for (_, value) in metrics {
-        payload_data.payload.push(value);
+        message.payload.push(value);
     }
 
-    let payload_str = serde_json::to_string(&payload_data)?;
+    Ok(message)
+}
+
+pub fn build_mqtt_message(
+    msg: &Vec<global::payload::Message>,
+    compress: bool,
+) -> Result<Vec<u8>, Box<dyn Error>> {
+    let payload_str = serde_json::to_string(&msg)?;
     let payload: Vec<u8>;
     if compress {
         let cmprs = std::time::Instant::now();
@@ -78,7 +84,13 @@ pub fn massage_raw_to_message(
         payload = compress_data(payload_str)?;
         let after = payload.len();
 
-        info!("'{}': payload data compressed using gzip in {} seconds, {:.2}% saved ({} bytes -> {} bytes)", name, cmprs.elapsed().as_secs_f64(), 100.0_f64 * (before as f64 - after as f64)/before as f64, before, after);
+        info!(
+            "payload data compressed using gzip in {} seconds, {:.2}% saved ({} bytes -> {} bytes)",
+            cmprs.elapsed().as_secs_f64(),
+            100.0_f64 * (before as f64 - after as f64) / before as f64,
+            before,
+            after
+        );
     } else {
         payload = payload_str.into_bytes();
     }
