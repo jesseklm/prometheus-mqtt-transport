@@ -1,3 +1,4 @@
+mod config;
 mod constants;
 mod usage;
 
@@ -57,4 +58,12 @@ fn main() {
     // XXX: Should never fail
     debug!("initialising logging");
     global::logging::init(log_level).unwrap();
+
+    let configuration = match config::parse_config_file(&config_file) {
+        Ok(v) => v,
+        Err(e) => {
+            error!("error while parsing configuration file: {}", e);
+            process::exit(1);
+        }
+    };
 }
