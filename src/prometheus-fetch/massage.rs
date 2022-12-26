@@ -69,6 +69,13 @@ pub fn parse_scrape_data(
     Ok(message)
 }
 
+fn inject_normalized_name(original: String) -> String {
+    if original.contains('{') {
+    } else {
+
+    }
+}
+
 pub fn build_mqtt_message(
     msg: &Vec<global::payload::Message>,
     compress: bool,
