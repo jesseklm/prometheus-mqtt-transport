@@ -2,7 +2,7 @@ use crate::config;
 use crate::constants;
 use crate::data;
 
-use log::error;
+use log::{debug, error};
 use simple_error::bail;
 use std::error::Error;
 use std::sync::mpsc;
@@ -40,22 +40,21 @@ pub fn run(
         let http_header = headers.clone();
 
         if method == &tiny_http::Method::Get {
-            match url {
-                "/" => {
-                    status_code = tiny_http::StatusCode::from(302_i16);
-                    payload = constants::HTML_ROOT.to_string();
-                }
-                mpath => {
-                    // TODO: Send request to data_channel and wait for reply
-                    let reply = String::new();
-                    status_code = tiny_http::StatusCode::from(200_i16);
-                    payload = reply;
-                }
-                _ => {
-                    status_code = tiny_http::StatusCode::from(404_i16);
-                    payload = constants::HTTP_NOT_FOUND.to_string();
-                }
-            };
+            if url == "/" {
+                status_code = tiny_http::StatusCode::from(302_i16);
+                payload = constants::HTML_ROOT.to_string();
+            } else if url == mpath {
+                debug!("sending data request");
+                data_request.send(data::Data::HTTPRequest)?;
+
+                status_code = tiny_http::StatusCode::from(200_i16);
+
+                debug!("waiting fore reply from data channel");
+                payload = data_reply.recv()?;
+            } else {
+                status_code = tiny_http::StatusCode::from(404_i16);
+                payload = constants::HTTP_NOT_FOUND.to_string();
+            }
         } else {
             status_code = tiny_http::StatusCode::from(405_i16);
             payload = constants::HTTP_METHOD_NOT_ALLOWED.to_string();

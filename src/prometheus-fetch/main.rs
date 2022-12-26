@@ -84,7 +84,7 @@ fn main() {
     });
 
     // scrape loop
-    if let Err(e) = scrape::run(&mut configuration, send.clone()) {
+    if let Err(e) = scrape::run(&mut configuration, send) {
         error!("can't start scraping process: {}", e);
         process::exit(1);
     }

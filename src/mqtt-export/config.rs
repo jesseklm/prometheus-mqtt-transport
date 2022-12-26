@@ -56,9 +56,6 @@ fn validate(cfg: &Configuration) -> Result<(), Box<dyn Error>> {
     if cfg.mqtt.qos > 2 || cfg.mqtt.qos < 0 {
         bail!("invalid MQTT QoS setting");
     }
-    if cfg.mqtt.topic.is_empty() || cfg.mqtt.topic.contains('+') || cfg.mqtt.topic.contains('#') {
-        bail!("invalid MQTT topic")
-    }
     if cfg.mqtt.timeout == 0 {
         bail!("invalid MQTT timeout");
     }

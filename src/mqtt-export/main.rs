@@ -2,11 +2,13 @@ mod config;
 mod constants;
 mod data;
 mod http;
+mod mqtt_sub;
 mod usage;
 
 use getopts::Options;
 use log::{debug, error};
 use std::sync::mpsc;
+use std::thread;
 use std::{env, process};
 
 fn main() {
@@ -73,8 +75,39 @@ fn main() {
     let (data_send, data_recv) = mpsc::channel::<data::Data>();
     let (http_send, http_recv) = mpsc::channel::<String>();
 
-    match data::handler(data_recv, http_send) {
-        Err(e) => panic!("{}", e),
-        Ok(_) => process::exit(0),
-    };
+    // Spawn threads
+    let data_thread_id = thread::spawn(move || {
+        match data::handler(data_recv, http_send) {
+            Ok(_) => {
+                process::exit(0);
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        };
+    });
+    let dsc = data_send.clone();
+    let cfg = configuration.clone();
+    let mqtt_thread_id = thread::spawn(move || match mqtt_sub::run(&cfg, dsc) {
+        Ok(_) => {
+            process::exit(0);
+        }
+        Err(e) => {
+            panic!("{}", e);
+        }
+    });
+    let http_thread_id = thread::spawn(move || {
+        match http::run(&configuration, data_send.clone(), http_recv) {
+            Ok(_) => {
+                process::exit(0);
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        };
+    });
+
+    data_thread_id.join().unwrap();
+    http_thread_id.join().unwrap();
+    mqtt_thread_id.join().unwrap();
 }
