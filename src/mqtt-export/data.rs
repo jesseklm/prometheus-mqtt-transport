@@ -74,10 +74,12 @@ pub fn handler(
 
 pub fn metric_to_string(payload: &global::payload::Payload) -> String {
     format!(
-        "# TYPE {}\n{}\n# HELP {}\n",
+        "# TYPE {} {}\n{}\n# HELP {} {}",
+        payload.metric_name,
         payload.data_type,
         payload.data.join("\n"),
-        payload.help
+        payload.metric_name,
+        payload.help,
     )
 }
 
