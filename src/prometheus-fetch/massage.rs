@@ -44,6 +44,8 @@ pub fn parse_scrape_data(
             let mname = fields[2];
             let fdata = fields[3..].join(" ");
             let entry = metrics.entry(mname).or_default();
+            entry.metric_name = mname.to_string();
+
             if ftype == "HELP" {
                 entry.help = fdata;
             } else {
