@@ -1,16 +1,16 @@
 [package]
 name = "prometheus-mqtt-transport"
-version = "0.1.0-20221231"
+version = "1.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "prometheus-fetch"
+name = "prom-mqtt-fetch"
 path = "src/prometheus-fetch/main.rs"
 
 [[bin]]
-name = "mqtt-export"
+name = "prom-mqtt-export"
 path = "src/mqtt-export/main.rs"
 
 [lib]
