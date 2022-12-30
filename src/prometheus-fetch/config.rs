@@ -2,7 +2,7 @@ use crate::constants;
 use log::debug;
 use serde::Deserialize;
 use simple_error::bail;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fs;
 use url::Url;
@@ -30,9 +30,13 @@ pub struct Scrape {
     #[serde(skip)]
     pub http_client: Option<reqwest::blocking::Client>,
     pub interval: Option<i64>,
+    #[serde(default)]
+    pub labels: HashMap<String, String>,
     #[serde(skip)]
     pub last_scrape: i64,
     pub name: String,
+    #[serde(default)]
+    pub suppress_scrape_name: bool,
     pub timeout: Option<u64>,
     pub url: String,
 }
@@ -58,6 +62,13 @@ fn default_global_timeout() -> u64 {
 pub fn parse_config_file(f: &str) -> Result<Configuration, Box<dyn Error>> {
     let raw = fs::read_to_string(f)?;
     let mut parsed: Configuration = serde_yaml::from_str(raw.as_str())?;
+
+    for s in parsed.scrape.iter_mut() {
+        if !s.suppress_scrape_name {
+            s.labels
+                .insert(constants::SCRAPE_NAME_LABEL.to_string(), s.name.clone());
+        }
+    }
 
     validate(&parsed)?;
 

@@ -65,6 +65,7 @@ fn main() {
     debug!("initialising logging");
     global::logging::init(log_level).unwrap();
 
+    debug!("parsing configuration file {}", config_file);
     let mut configuration = match config::parse_config_file(&config_file) {
         Ok(v) => v,
         Err(e) => {
@@ -72,6 +73,7 @@ fn main() {
             process::exit(1);
         }
     };
+    debug!("final configuration: {:?}", configuration);
 
     let (send, receive) = mpsc::channel::<Vec<u8>>();
     let cfg = configuration.clone();

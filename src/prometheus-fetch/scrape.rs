@@ -72,7 +72,8 @@ pub fn run(
                 );
 
                 // Massage raw Prometheus data into MQTT payload
-                let parsed = massage::parse_scrape_data(&raw, &scrape.name, interval)?;
+                let parsed =
+                    massage::parse_scrape_data(&raw, &scrape.name, &scrape.labels, interval)?;
                 data.push(parsed);
 
                 debug!("updating scrape.last_scrape stamp to {}", now);

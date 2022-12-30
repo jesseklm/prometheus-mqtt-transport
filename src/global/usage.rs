@@ -3,7 +3,7 @@ use crate::constants;
 pub fn show_version() {
     print!(
         "{} version {}
-Copyright (C) 2022 by Andreas Maus <maus@ypbind.de>
+Copyright (C) 2022-2023 by Andreas Maus <maus@ypbind.de>
 This program comes with ABSOLUTELY NO WARRANTY.
 
 {} is distributed under the Terms of the GNU General

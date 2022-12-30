@@ -9,6 +9,7 @@ use std::io::prelude::*;
 pub fn parse_scrape_data(
     raw: &str,
     name: &str,
+    labels: &HashMap<String, String>,
     expiration: i64,
 ) -> Result<global::payload::Message, Box<dyn Error>> {
     let mut message = global::payload::Message {
@@ -60,7 +61,7 @@ pub fn parse_scrape_data(
             let mname = mvec[0];
             let entry = metrics.entry(mname).or_default();
             entry.metric_name = mname.to_string();
-            entry.data.push(line.to_string());
+            entry.data.push(add_labels(line, labels));
         }
     }
 
@@ -71,11 +72,31 @@ pub fn parse_scrape_data(
     Ok(message)
 }
 
-fn inject_normalized_name(original: String) -> String {
-    if original.contains('{') {
-    } else {
-
+fn add_labels(data: &str, l: &HashMap<String, String>) -> String {
+    if l.is_empty() {
+        return data.to_string();
     }
+
+    let flat = flatten_label_map(l);
+    let result = if data.contains('{') {
+        let splitted: Vec<&str> = data.splitn(2, '{').collect();
+        format!("{}{{{},{}", splitted[0], flat.join(","), splitted[1])
+    } else {
+        let splitted: Vec<&str> = data.splitn(2, ' ').collect();
+        format!("{}{{{}}} {}", splitted[0], flat.join(","), splitted[1])
+    };
+
+    result
+}
+
+fn flatten_label_map(l: &HashMap<String, String>) -> Vec<String> {
+    let mut result: Vec<String> = Vec::new();
+
+    for (lname, lvalue) in l.iter() {
+        result.push(format!("{}=\"{}\"", lname, lvalue));
+    }
+
+    result
 }
 
 pub fn build_mqtt_message(
