@@ -59,6 +59,7 @@ pub fn run(
                     Ok(v) => v,
                     Err(e) => {
                         error!("scraping of {} failed: {}", scrape.url, e);
+                        scrape.last_scrape = now;
                         continue;
                     }
                 };
