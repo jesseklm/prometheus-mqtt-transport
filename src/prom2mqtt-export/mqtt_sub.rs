@@ -41,6 +41,7 @@ pub fn run(
                         continue;
                     }
                 };
+                info!("received {} bytes of data on {}", pdata.len(), vmsg.topic());
                 debug!("sending parsed data to data handler");
                 data_sender.send(data::Data::MetricData(pdata))?;
             }

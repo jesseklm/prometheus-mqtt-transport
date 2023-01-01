@@ -1,5 +1,5 @@
 use flate2::bufread::GzDecoder;
-use log::{debug, error};
+use log::{debug, error, info};
 use simple_error::bail;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
@@ -21,6 +21,7 @@ fn build_reply_string(metrics: &HashMap<String, global::payload::Message>) -> St
     let mut metrics_type: HashMap<String, String> = HashMap::new();
     let mut metrics_help: HashMap<String, String> = HashMap::new();
     let mut metrics_data: HashMap<String, Vec<String>> = HashMap::new();
+    let parse_time = std::time::Instant::now();
 
     debug!("scanning for histogram and summary metrics");
     // get <basename> of histogram and summary metrics
@@ -174,6 +175,10 @@ fn build_reply_string(metrics: &HashMap<String, global::payload::Message>) -> St
 
     // enforce final new line otherwise promtool will complain ("unexpected end of input stream")
     result.push(String::new());
+    info!(
+        "metrics processed in {} seconds",
+        parse_time.elaped().as_secs_f64()
+    );
     result.join("\n")
 }
 
@@ -309,16 +314,30 @@ pub fn parse_raw_metrics(raw: Vec<u8>) -> Result<Vec<global::payload::Message>, 
         bail!("received payload is too short");
     }
 
+    let prc = std::time::Instant::now();
+
     let data_str = if raw[0] == 0x1f && raw[1] == 0x8b {
+        let dcomp = std::time::Instant::now();
+
+        info!("decompressing gzip compressed data");
         let mut gzd = GzDecoder::new(&raw[..]);
         let mut decompressed = String::new();
         gzd.read_to_string(&mut decompressed)?;
+        info!(
+            "data decompressed {} bytes -> {} bytes in {} seconds",
+            raw.len(),
+            decompressed.len(),
+            dcomp.elapsed().as_secs_f64()
+        );
+
         decompressed
     } else {
         String::from_utf8(raw)?
     };
 
     let parsed = serde_json::from_str(&data_str)?;
+    info!("payload parsed in {} seconrs", prc.elapsed().as_secs_f64());
+
     Ok(parsed)
 }
 
@@ -333,6 +352,11 @@ fn purge_expired(
         if let Some(data) = metrics.get(name) {
             if let Some(last_update) = metrics_expiration.get(name) {
                 if now - last_update >= data.expiration {
+                    info!(
+                        "{} expired {} seconds ago, removing metrics",
+                        name,
+                        now - last_update
+                    );
                     debug!("'{}' was last updated {} - {} seconds ago, expiration set to {}, adding to removal list", name, last_update, now - last_update, data.expiration);
                     expired.push(name.to_string());
                 }
