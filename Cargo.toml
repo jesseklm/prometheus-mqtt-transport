@@ -6,12 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "prom-mqtt-fetch"
-path = "src/prometheus-fetch/main.rs"
+name = "prom2mqtt-fetch"
+path = "src/prom2mqtt-fetch/main.rs"
 
 [[bin]]
-name = "prom-mqtt-export"
-path = "src/mqtt-export/main.rs"
+name = "prom2mqtt-export"
+path = "src/prom2mqtt-export/main.rs"
 
 [lib]
 name = "global"

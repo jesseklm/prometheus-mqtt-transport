@@ -1,0 +1,14 @@
+[Unit]
+Description=Scrape configured exporters and send data to MQTT broker
+After=network.target auditd.service sssd.service
+
+[Service]
+EnvironmentFile=-/etc/default/prom2mqtt-fetch
+ExecStart=/usr/sbin/prom2mqtt-fetch $OPTIONS
+Restart=on-failure
+User=prometheus
+Group=prometheus
+
+[Install]
+WantedBy=multi-user.target
+
