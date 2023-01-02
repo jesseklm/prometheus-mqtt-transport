@@ -1,4 +1,5 @@
 use crate::config;
+use crate::exporter;
 
 use log::{debug, error, info, warn};
 use std::error::Error;
@@ -49,11 +50,14 @@ pub fn run(
         let msg = paho_mqtt::message::Message::new(&cfg.mqtt.topic, data, cfg.mqtt.qos);
         if let Err(e) = mqtt_client.publish(msg) {
             error!("sending message to MQTT broker failed - {}", e);
+            exporter::MQTT_SUCCESS.set(0);
             continue;
         }
-        info!(
-            "MQTT message send in {} seconds",
-            pubt.elapsed().as_secs_f64()
-        );
+        let pubt_elapsed = pubt.elapsed().as_secs_f64();
+        exporter::MQTT_SEND.set(pubt_elapsed);
+        exporter::MQTT_QOS.set(cfg.mqtt.qos as i64);
+        exporter::MQTT_SUCCESS.set(1);
+
+        info!("MQTT message send in {} seconds", pubt_elapsed,);
     }
 }

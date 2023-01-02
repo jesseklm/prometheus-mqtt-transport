@@ -1,4 +1,5 @@
 use crate::config;
+use crate::exporter;
 use crate::http;
 use crate::massage;
 
@@ -59,17 +60,34 @@ pub fn run(
                     Ok(v) => v,
                     Err(e) => {
                         error!("scraping of {} failed: {}", scrape.url, e);
+
+                        let scrp_elapsed = scrp.elapsed().as_secs_f64();
+                        exporter::SCRAPE_DURATION
+                            .with_label_values(&[&scrape.name])
+                            .set(scrp_elapsed);
+                        exporter::SCRAPE_SUCCESS
+                            .with_label_values(&[&scrape.name])
+                            .set(0);
                         scrape.last_scrape = now;
                         continue;
                     }
                 };
+
+                let scrp_elapsed = scrp.elapsed().as_secs_f64();
+                exporter::SCRAPE_DURATION
+                    .with_label_values(&[&scrape.name])
+                    .set(scrp_elapsed);
+                exporter::SCRAPE_SUCCESS
+                    .with_label_values(&[&scrape.name])
+                    .set(1);
+
                 info!(
                     "'{}': scraped {} bytes from {} for {} in {} seconds",
                     scrape.name,
                     raw.len(),
                     scrape.url,
                     scrape.name,
-                    scrp.elapsed().as_secs_f64()
+                    scrp_elapsed,
                 );
 
                 // Massage raw Prometheus data into MQTT payload

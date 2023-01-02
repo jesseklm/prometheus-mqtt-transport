@@ -1,3 +1,5 @@
+use crate::exporter;
+
 use flate2::read::GzEncoder;
 use flate2::Compression;
 use log::{debug, info};
@@ -105,6 +107,9 @@ pub fn build_mqtt_message(
 ) -> Result<Vec<u8>, Box<dyn Error>> {
     let payload_str = serde_json::to_string(&msg)?;
     let payload: Vec<u8>;
+
+    exporter::SIZE.set(payload_str.len() as i64);
+
     if compress {
         let cmprs = std::time::Instant::now();
 
@@ -114,14 +119,21 @@ pub fn build_mqtt_message(
         payload = compress_data(payload_str)?;
         let after = payload.len();
 
+        let cmprs_elapsed = cmprs.elapsed().as_secs_f64();
+        exporter::COMPRESSION.set(1);
+        exporter::COMPRESSED_SIZE.set(after as i64);
+        exporter::COMPRESS_TIME.set(cmprs_elapsed);
+
         info!(
             "payload data compressed using gzip in {} seconds, {:.2}% saved ({} bytes -> {} bytes)",
-            cmprs.elapsed().as_secs_f64(),
+            cmprs_elapsed,
             100.0_f64 * (before as f64 - after as f64) / before as f64,
             before,
             after
         );
     } else {
+        exporter::COMPRESSION.set(0);
+        exporter::COMPRESSED_SIZE.set(payload_str.len() as i64);
         payload = payload_str.into_bytes();
     }
 

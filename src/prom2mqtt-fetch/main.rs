@@ -1,5 +1,6 @@
 mod config;
 mod constants;
+mod exporter;
 mod http;
 mod massage;
 mod mqtt_sender;
@@ -75,12 +76,27 @@ fn main() {
     };
     debug!("final configuration: {:?}", configuration);
 
+    debug!("registering internal Prometheus metrics");
+    exporter::register();
+
     let (send, receive) = mpsc::channel::<Vec<u8>>();
     let cfg = configuration.clone();
     debug!("spawning MQTT sender thread");
     thread::spawn(move || {
         if let Err(e) = mqtt_sender::run(&cfg, receive) {
             error!("can't start MQTT sender thread: {}", e);
+            process::exit(1);
+        }
+    });
+
+    debug!("spawning HTTP server for internal Prometheus metrics");
+    let cfg = configuration.clone();
+    thread::spawn(move || {
+        if let Err(e) = http::run(&cfg) {
+            error!(
+                "can't start HTTP server for internal Prometheus metrics: {}",
+                e
+            );
             process::exit(1);
         }
     });

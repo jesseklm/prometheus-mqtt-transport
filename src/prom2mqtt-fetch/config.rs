@@ -12,6 +12,8 @@ pub struct Configuration {
     #[serde(default)]
     pub global: Global,
     pub mqtt: global::mqtt::MQTT,
+    #[serde(default)]
+    pub prometheus: Prometheus,
     pub scrape: Vec<Scrape>,
 }
 
@@ -41,6 +43,14 @@ pub struct Scrape {
     pub url: String,
 }
 
+#[derive(Clone, Debug, Deserialize)]
+pub struct Prometheus {
+    #[serde(default = "default_prometheus_listen")]
+    pub listen: String,
+    #[serde(default = "default_prometheus_path")]
+    pub path: String,
+}
+
 impl Default for Global {
     fn default() -> Self {
         Global {
@@ -49,6 +59,23 @@ impl Default for Global {
             timeout: constants::DEFAULT_SCRAPE_TIMEOUT,
         }
     }
+}
+
+impl Default for Prometheus {
+    fn default() -> Self {
+        Prometheus {
+            listen: constants::DEFAULT_PROMETHEUS_LISTEN.to_string(),
+            path: constants::DEFAULT_PROMETHEUS_PATH.to_string(),
+        }
+    }
+}
+
+fn default_prometheus_listen() -> String {
+    constants::DEFAULT_PROMETHEUS_LISTEN.to_string()
+}
+
+fn default_prometheus_path() -> String {
+    constants::DEFAULT_PROMETHEUS_PATH.to_string()
 }
 
 fn default_global_interval() -> i64 {
