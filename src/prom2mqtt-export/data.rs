@@ -177,7 +177,7 @@ fn build_reply_string(metrics: &HashMap<String, global::payload::Message>) -> St
     result.push(String::new());
     info!(
         "metrics processed in {} seconds",
-        parse_time.elaped().as_secs_f64()
+        parse_time.elapsed().as_secs_f64()
     );
     result.join("\n")
 }

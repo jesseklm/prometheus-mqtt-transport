@@ -33,7 +33,7 @@ pub fn run(
     for msg in messages.iter() {
         match msg {
             Some(vmsg) => {
-                debug!("data received on topic");
+                info!("received data on {} with qos {}", vmsg.topic(), vmsg.qos());
                 let pdata = match data::parse_raw_metrics(vmsg.payload().to_vec()) {
                     Ok(v) => v,
                     Err(e) => {
@@ -41,7 +41,6 @@ pub fn run(
                         continue;
                     }
                 };
-                info!("received {} bytes of data on {}", pdata.len(), vmsg.topic());
                 debug!("sending parsed data to data handler");
                 data_sender.send(data::Data::MetricData(pdata))?;
             }
