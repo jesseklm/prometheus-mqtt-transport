@@ -332,11 +332,12 @@ pub fn parse_raw_metrics(raw: Vec<u8>) -> Result<Vec<global::payload::Message>, 
 
         decompressed
     } else {
+        info!("{} bytes of raw JSON data", raw.len());
         String::from_utf8(raw)?
     };
 
     let parsed = serde_json::from_str(&data_str)?;
-    info!("payload parsed in {} seconrs", prc.elapsed().as_secs_f64());
+    info!("payload parsed in {} seconds", prc.elapsed().as_secs_f64());
 
     Ok(parsed)
 }
