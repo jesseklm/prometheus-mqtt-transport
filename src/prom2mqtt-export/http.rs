@@ -1,7 +1,7 @@
 use crate::config;
 use crate::constants;
 use crate::data;
-
+use crate::exporter;
 use log::{debug, error};
 use simple_error::bail;
 use std::error::Error;
@@ -36,7 +36,7 @@ pub fn run(
         let method = request.method();
         let url = request.url();
         let status_code: tiny_http::StatusCode;
-        let payload: String;
+        let mut payload: String;
         let http_header = headers.clone();
 
         if method == &tiny_http::Method::Get {
@@ -51,6 +51,7 @@ pub fn run(
 
                 debug!("waiting fore reply from data channel");
                 payload = data_reply.recv()?;
+                payload.push_str(&exporter::metrics());
             } else {
                 status_code = tiny_http::StatusCode::from(404_i16);
                 payload = constants::HTTP_NOT_FOUND.to_string();

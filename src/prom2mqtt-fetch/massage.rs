@@ -122,7 +122,7 @@ pub fn build_mqtt_message(
         let cmprs_elapsed = cmprs.elapsed().as_secs_f64();
         exporter::COMPRESSION.set(1);
         exporter::COMPRESSED_SIZE.set(after as i64);
-        exporter::COMPRESS_TIME.set(cmprs_elapsed);
+        exporter::COMPRESS_TIME.observe(cmprs_elapsed);
 
         info!(
             "payload data compressed using gzip in {} seconds, {:.2}% saved ({} bytes -> {} bytes)",

@@ -1,6 +1,7 @@
 mod config;
 mod constants;
 mod data;
+mod exporter;
 mod http;
 mod mqtt_sub;
 mod usage;
@@ -71,6 +72,9 @@ fn main() {
             process::exit(1);
         }
     };
+
+    debug!("registering internal metrics");
+    exporter::register();
 
     let (data_send, data_recv) = mpsc::channel::<data::Data>();
     let (http_send, http_recv) = mpsc::channel::<String>();

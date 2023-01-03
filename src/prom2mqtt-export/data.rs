@@ -1,3 +1,5 @@
+use crate::exporter;
+
 use flate2::bufread::GzDecoder;
 use log::{debug, error, info};
 use simple_error::bail;
@@ -319,25 +321,38 @@ pub fn parse_raw_metrics(raw: Vec<u8>) -> Result<Vec<global::payload::Message>, 
     let data_str = if raw[0] == 0x1f && raw[1] == 0x8b {
         let dcomp = std::time::Instant::now();
 
+        exporter::MESSAGES_RECEIVED_COMP_TOTAL.inc();
+        exporter::BYTES_RECEIVED_COMP_TOTAL.inc_by(raw.len() as u64);
+
         info!("decompressing gzip compressed data");
         let mut gzd = GzDecoder::new(&raw[..]);
         let mut decompressed = String::new();
         gzd.read_to_string(&mut decompressed)?;
+
+        let dcomp_elapsed = dcomp.elapsed().as_secs_f64();
+
         info!(
             "data decompressed {} bytes -> {} bytes in {} seconds",
             raw.len(),
             decompressed.len(),
-            dcomp.elapsed().as_secs_f64()
+            dcomp_elapsed
         );
 
+        exporter::DECOMPRESS_TIME.observe(dcomp_elapsed);
+        exporter::BYTES_RECEIVED_DECOMP_TOTAL.inc_by(decompressed.len() as u64);
         decompressed
     } else {
         info!("{} bytes of raw JSON data", raw.len());
+        exporter::MESSAGES_RECEIVED_NO_COMP_TOTAL.inc();
+        exporter::BYTES_RECEIVED_NO_COMP_TOTAL.inc_by(raw.len() as u64);
         String::from_utf8(raw)?
     };
 
     let parsed = serde_json::from_str(&data_str)?;
-    info!("payload parsed in {} seconds", prc.elapsed().as_secs_f64());
+    let prc_elapsed = prc.elapsed().as_secs_f64();
+
+    exporter::PAYLOAD_PARSE_TIME.observe(prc_elapsed);
+    info!("payload parsed in {} seconds", prc_elapsed);
 
     Ok(parsed)
 }

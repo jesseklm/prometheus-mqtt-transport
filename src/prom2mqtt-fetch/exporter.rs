@@ -2,15 +2,18 @@ use crate::constants;
 
 use lazy_static::lazy_static;
 use log::error;
-use prometheus::{Gauge, GaugeVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder};
+use prometheus::{
+    Histogram, HistogramOpts, HistogramVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder,
+};
 
 lazy_static! {
     pub static ref REGISTRY: Registry = Registry::new();
-    pub static ref SCRAPE_DURATION: GaugeVec = GaugeVec::new(
-        Opts::new(
+    pub static ref SCRAPE_DURATION: HistogramVec = HistogramVec::new(
+        HistogramOpts::new(
             constants::METRIC_SCRAPE_DURATION_NAME,
             constants::METRIC_SCRAPE_DURATION_HELP
-        ),
+        )
+        .buckets(constants::METRIC_SCRAPE_DURATION_BUCKETS.to_vec()),
         &["scrape_name"],
     )
     .unwrap();
@@ -37,9 +40,12 @@ lazy_static! {
         constants::METRIC_COMPRESSED_SIZE_HELP
     )
     .unwrap();
-    pub static ref COMPRESS_TIME: Gauge = Gauge::new(
-        constants::METRIC_COMPRESS_TIME_NAME,
-        constants::METRIC_COMPRESS_TIME_HELP
+    pub static ref COMPRESS_TIME: Histogram = Histogram::with_opts(
+        HistogramOpts::new(
+            constants::METRIC_COMPRESS_TIME_NAME,
+            constants::METRIC_COMPRESS_TIME_HELP
+        )
+        .buckets(constants::METRIC_COMPRESS_TIME_BUCKETS.to_vec()),
     )
     .unwrap();
     pub static ref MQTT_QOS: IntGauge = IntGauge::new(
@@ -47,9 +53,12 @@ lazy_static! {
         constants::METRIC_MQTT_QOS_HELP
     )
     .unwrap();
-    pub static ref MQTT_SEND: Gauge = Gauge::new(
-        constants::METRIC_MQTT_SEND_NAME,
-        constants::METRIC_MQTT_SEND_HELP
+    pub static ref MQTT_SEND_TIME: Histogram = Histogram::with_opts(
+        HistogramOpts::new(
+            constants::METRIC_MQTT_SEND_TIME_NAME,
+            constants::METRIC_MQTT_SEND_TIME_HELP
+        )
+        .buckets(constants::METRIC_MQTT_SEND_TIME_BUCKETS.to_vec()),
     )
     .unwrap();
     pub static ref MQTT_SUCCESS: IntGauge = IntGauge::new(
@@ -71,18 +80,13 @@ pub fn register() {
         .unwrap();
     REGISTRY.register(Box::new(COMPRESS_TIME.clone())).unwrap();
     REGISTRY.register(Box::new(MQTT_QOS.clone())).unwrap();
-    REGISTRY.register(Box::new(MQTT_SEND.clone())).unwrap();
+    REGISTRY.register(Box::new(MQTT_SEND_TIME.clone())).unwrap();
     REGISTRY.register(Box::new(MQTT_SUCCESS.clone())).unwrap();
 }
 
 pub fn metrics() -> String {
     let encoder = TextEncoder::new();
     let mut buffer = String::new();
-
-    // Export scrape metrics
-    if let Err(e) = encoder.encode_utf8(&REGISTRY.gather(), &mut buffer) {
-        error!("can't export scrape metrics - {}", e);
-    }
 
     // Export internal process metrics
     if let Err(e) = encoder.encode_utf8(&prometheus::gather(), &mut buffer) {

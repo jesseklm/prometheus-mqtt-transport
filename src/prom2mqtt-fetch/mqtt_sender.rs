@@ -54,7 +54,7 @@ pub fn run(
             continue;
         }
         let pubt_elapsed = pubt.elapsed().as_secs_f64();
-        exporter::MQTT_SEND.set(pubt_elapsed);
+        exporter::MQTT_SEND_TIME.observe(pubt_elapsed);
         exporter::MQTT_QOS.set(cfg.mqtt.qos as i64);
         exporter::MQTT_SUCCESS.set(1);
 

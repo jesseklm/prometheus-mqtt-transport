@@ -60,11 +60,6 @@ pub fn run(
                     Ok(v) => v,
                     Err(e) => {
                         error!("scraping of {} failed: {}", scrape.url, e);
-
-                        let scrp_elapsed = scrp.elapsed().as_secs_f64();
-                        exporter::SCRAPE_DURATION
-                            .with_label_values(&[&scrape.name])
-                            .set(scrp_elapsed);
                         exporter::SCRAPE_SUCCESS
                             .with_label_values(&[&scrape.name])
                             .set(0);
@@ -76,7 +71,7 @@ pub fn run(
                 let scrp_elapsed = scrp.elapsed().as_secs_f64();
                 exporter::SCRAPE_DURATION
                     .with_label_values(&[&scrape.name])
-                    .set(scrp_elapsed);
+                    .observe(scrp_elapsed);
                 exporter::SCRAPE_SUCCESS
                     .with_label_values(&[&scrape.name])
                     .set(1);

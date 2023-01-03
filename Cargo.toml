@@ -26,7 +26,7 @@ getopts = "0.2.21"
 lazy_static = "1.4.0"
 log = "0.4.17"
 paho-mqtt = "0.11.1"
-prometheus = { version = "0.13.3", features = ["process"] }
+prometheus = "0.13.3"
 rand = "0.8.5"
 reqwest = { version = "0.11.13", features = ["blocking"] }
 serde = { version = "1.0.152", features = ["derive"] }
