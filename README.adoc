@@ -1,0 +1,13 @@
+= prometheus-mqtt-transport - Scrape Prometheus exporter,  transport data over MQTT and expose transported metric data to Prometheus
+:source-highlighter: rouge
+:rouge-style: gruvbox
+:stylesheet: asciidoc.css
+:toc: left
+
+== Preface
+Prometheus is a reliable tool to observe performance metrics.
+
+In some cases it's not suitable to run or access an Prometheus instance.
+
+For instance a system can run as local Prometheus instance, collect metrics
+from an internal network and 

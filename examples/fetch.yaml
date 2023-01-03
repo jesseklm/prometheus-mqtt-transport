@@ -1,0 +1,33 @@
+---
+global:
+  # Scrape interval
+  interval: 300
+  # Compress data before sending it to the MQTT broker
+  compress: true
+mqtt:
+  # Broker URL, ssl:// for MQTTS or tcp:// for MQTT without TLS
+  broker: 'ssl://remote.bro.ker:1884'
+  ca_cert: '/etc/ssl/certs/ca-certificates.crt'
+  user: 'fetch-user'
+  password: 'Sup3rS3cr37'
+  qos: 0
+  insecure_ssl: false
+  topic: 'topi/c/for/receival/of/transport'
+  # connect and send timeout in seconds
+  timeout: 5
+  # reconnect timeout
+  reconnect_timeout: 60
+scrape:
+  - name: 'dummy_data'
+    url: ' http://localhost:8080/metrics'
+    # use defined labels
+    labels:
+      dummy: 'data'
+      foo: 'bar baz fubar'
+  - name: 'system1_node_exporter'
+    url: 'http://system1.fqdn:9100/metrics'
+    labels:
+      hostname: 'system1'
+      exporter: 'node_exporter'
+    # don't add label prom2mqtt_fetch_scrape="<scrape_name"> label to the metrics
+    suppress_scrape_name: true

@@ -1,0 +1,13 @@
+---
+mqtt:
+  # Broker URL, ssl:// for MQTTS or tcp:// for MQTT without TLS
+  broker: 'ssl://remote.bro.ker:1884'
+  user: 'export-user'
+  password: 'S3cr3tP4s5w0rD'
+  ca_file: '/etc/ssl/certs/ca-certificates.crt'
+  insecure_ssl: false
+  topic: 'topi/c/for/receival/of/transport/+'
+prometheus:
+  listen: 'localhost:9999'
+  path: '/metrics'
+
