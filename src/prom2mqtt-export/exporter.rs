@@ -77,8 +77,7 @@ pub fn metrics() -> String {
     let encoder = TextEncoder::new();
     let mut buffer = String::new();
 
-    // Export internal process metrics
-    if let Err(e) = encoder.encode_utf8(&prometheus::gather(), &mut buffer) {
+    if let Err(e) = encoder.encode_utf8(&REGISTRY.gather(), &mut buffer) {
         error!("can't export internal process metrics - {}", e);
     }
 
