@@ -2,7 +2,7 @@ use crate::config;
 use crate::constants;
 use crate::data;
 use crate::exporter;
-use log::{debug, error};
+use log::{debug, error, info};
 use simple_error::bail;
 use std::error::Error;
 use std::sync::mpsc;
@@ -22,6 +22,10 @@ pub fn run(
         Ok(v) => v,
         Err(e) => bail!("cant start HTTP server - {}", e),
     };
+    info!(
+        "listening on http://{}{} for prometheus metric scrapes",
+        cfg.prometheus.listen, cfg.prometheus.path
+    );
 
     let mpath = &cfg.prometheus.path;
 
