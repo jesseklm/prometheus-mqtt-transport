@@ -8,7 +8,7 @@ mod scrape;
 mod usage;
 
 use getopts::Options;
-use log::{debug, error};
+use log::{debug, error, info};
 use std::sync::mpsc;
 use std::thread;
 use std::{env, process};
@@ -18,6 +18,7 @@ fn main() {
     let mut options = Options::new();
     let mut log_level = log::LevelFilter::Info;
 
+    options.optflag("C", "check", "Check configuration file and exit");
     options.optflag("D", "debug", "Enable debug logs");
     options.optflag("V", "version", "Show version information");
     options.optflag("h", "help", "Show help text");
@@ -74,6 +75,10 @@ fn main() {
             process::exit(1);
         }
     };
+    if opts.opt_present("C") {
+        info!("valid configuration file");
+        process::exit(0);
+    }
     debug!("final configuration: {:?}", configuration);
 
     debug!("registering internal Prometheus metrics");

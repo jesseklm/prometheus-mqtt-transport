@@ -4,6 +4,7 @@ After=network.target auditd.service sssd.service
 
 [Service]
 EnvironmentFile=-/etc/default/prom2mqtt-export
+ExecStartPre=/usr/sbin/prom2mqtt-export --check $OPTIONS
 ExecStart=/usr/sbin/prom2mqtt-export $OPTIONS
 Restart=on-failure
 User=prometheus

@@ -3,7 +3,7 @@ use crate::constants;
 pub fn show_usage() {
     global::usage::show_version();
     println!(
-        "Usage: {} [-c <cfg>|--config=<cfg>] [-h|--help] [-q|--quiet] [-D|--debug] [-V|--version]
+        "Usage: {} [-c <cfg>|--config=<cfg>] [-h|--help] [-q|--quiet] [-C|--check] [-D|--debug] [-V|--version]
 
     -c <cfg>        Read configuration from file <cfg>
     --config=<cfg>  Default: {}
@@ -13,6 +13,9 @@ pub fn show_usage() {
 
     -q              Quiet operation.
     --quiet         Only warning and critical messages will be logged
+
+    -C              Check configuration file and exit
+    --check
 
     -D              Enable debug log
     --debug
