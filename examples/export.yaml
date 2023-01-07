@@ -7,6 +7,11 @@ mqtt:
   ca_file: '/etc/ssl/certs/ca-certificates.crt'
   insecure_ssl: false
   topic: 'topi/c/for/receival/of/transport/+'
+  # connect and send timeout in seconds
+  timeout: 5
+  # reconnect timeout
+  reconnect_timeout: 60
+  qos: 0
 prometheus:
   listen: 'localhost:9999'
   path: '/metrics'
