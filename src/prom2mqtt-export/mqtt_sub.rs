@@ -5,15 +5,42 @@ use log::{debug, error, info, warn};
 use simple_error::bail;
 use std::error::Error;
 use std::sync::mpsc;
+use std::{thread, time};
 
 pub fn run(
     cfg: &config::Configuration,
     data_sender: mpsc::Sender<data::Data>,
 ) -> Result<(), Box<dyn Error>> {
+    let one_second = time::Duration::from_secs(1);
     let conn = global::mqtt::connection_builder(&cfg.mqtt)?;
     let client = global::mqtt::client_builder(&cfg.mqtt)?;
+    let cstatus: paho_mqtt::ServerResponse;
 
-    let cstatus = client.connect(conn)?;
+    let mut ticktock: u64 = 0;
+    loop {
+        let mco = conn.clone();
+        cstatus = match client.connect(mco) {
+            Err(e) => {
+                error!(
+                    "connection to MQTT broker {} failed: {}",
+                    cfg.mqtt.broker, e
+                );
+                if ticktock > cfg.mqtt.reconnect_timeout {
+                    return Err(Box::new(e));
+                }
+                thread::sleep(one_second);
+                ticktock += 1;
+                warn!(
+                    "retryingo to connect to MQTT broker {} - attempt {}/{}",
+                    cfg.mqtt.broker, ticktock, cfg.mqtt.reconnect_timeout
+                );
+                continue;
+            }
+            Ok(v) => v,
+        };
+        break;
+    }
+
     if let Some(v) = cstatus.connect_response() {
         if !v.session_present {
             info!(
