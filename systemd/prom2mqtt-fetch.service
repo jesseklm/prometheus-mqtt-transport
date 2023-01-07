@@ -1,6 +1,6 @@
 [Unit]
 Description=Scrape configured exporters and send data to MQTT broker
-After=network.target auditd.service sssd.service
+After=network.target auditd.service sssd.service network-online.target
 
 [Service]
 EnvironmentFile=-/etc/default/prom2mqtt-fetch

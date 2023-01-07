@@ -1,6 +1,6 @@
 [Unit]
 Description=Export data from MQTT transmitted by prom2mqtt-fetch and export data for Prometheus
-After=network.target auditd.service sssd.service
+After=network.target auditd.service sssd.service network-online.target
 
 [Service]
 EnvironmentFile=-/etc/default/prom2mqtt-export
