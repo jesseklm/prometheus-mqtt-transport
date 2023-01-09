@@ -7,7 +7,122 @@
 == Preface
 Prometheus is a reliable tool to observe performance metrics.
 
-In some cases it's not suitable to run or access an Prometheus instance.
+In some cases it's not suitable to run or access an Prometheus or exporter instance, this
+commands will use MQTT as transport of scraped metric data.
 
-For instance a system can run as local Prometheus instance, collect metrics
-from an internal network and 
+This tool consist of two commands:
+
+* `prom2mqtt-fetch` - which scrapes a list of remote exporters and send the scraped data (with optional compression) to MQTT
+* `prom2mqtt-export`- listen on MQTT topic for data send by `prom2mqtt-fetch` and export data to Prometheus
+
+=== prom2mqtt-fetch - scrape exporters and send data to MQTT broker
+`prom2mqtt-fetch` scrapes a list of exporters at a regular interval and send the results - optionally adding additional labels - to
+a MQTT broker.
+
+To reduce the amount of data transmitted, the data can be compressed before sending.
+
+Command line parameters:
+
+[width="100%",cols="<34%,<41%,<25%",options="header",]
+|===
+|_Option_ |_Parameter_ |_Note_
+|`-D` / `--debug` |- |Show debug messages
+|`-V` / `--version` |- |Show version information
+|`-c <cfg>` / `--config=<cfg>` |Read configuration from `<cfg>` |Default: `/etc/prometheus-mqtt-transport/fetch.yaml`
+|`-h` / `--help` |- |Show help text
+|`-q` / `--quiet` |- |Quiet operation. Only warnings and errors are shown
+|===
+
+Example configuration file:
+
+[source,yaml]
+----
+---
+global:
+  # Scrape interval
+  interval: 300
+  # Compress data before sending it to the MQTT broker
+  compress: true
+mqtt:
+  # Broker URL, ssl:// for MQTTS or tcp:// for MQTT without TLS
+  broker: 'ssl://remote.bro.ker:1884'
+  ca_cert: '/etc/ssl/certs/ca-certificates.crt'
+  user: 'fetch-user'
+  password: 'Sup3rS3cr37'
+  qos: 0
+  insecure_ssl: false
+  topic: 'topi/c/for/receival/of/transport'
+  # connect and send timeout in seconds
+  timeout: 5
+  # reconnect timeout
+  reconnect_timeout: 60
+scrape:
+  - name: 'dummy_data'
+    url: ' http://localhost:8080/metrics'
+    # use defined labels
+    labels:
+      dummy: 'data'
+      foo: 'bar baz fubar'
+    # scrape timeout in seconds
+    timeout: 15
+  - name: 'system1_node_exporter'
+    url: 'http://system1.fqdn:9100/metrics'
+    labels:
+      hostname: 'system1'
+      exporter: 'node_exporter'
+    # don't add label prom2mqtt_fetch_scrape="<scrape_name"> label to the metrics
+    suppress_scrape_name: true
+    # interval for this particular scrape
+    interval: 60
+----
+
+=== prom2mqtt-export - receive data from MQTT and export it to Prometheus
+`prom2mqtt-export` listen on the configured topic for data send by `prom2mqtt-fetch`.
+It detects compression automatically and export the received data for Prometheus to scrape.
+
+Command line parameters:
+
+[width="100%",cols="<34%,<41%,<25%",options="header",]
+|===
+|_Option_ |_Parameter_ |_Note_
+|`-D` / `--debug` |- |Show debug messages
+|`-V` / `--version` |- |Show version information
+|`-c <cfg>` / `--config=<cfg>` |Read configuration from `<cfg>` |Default: `/etc/prometheus-mqtt-transport/export.yaml`
+|`-h` / `--help` |- |Show help text
+|`-q` / `--quiet` |- |Quiet operation. Only warnings and errors are shown
+|===
+
+Example configuration file:
+
+[source,yaml]
+----
+---
+mqtt:
+  # Broker URL, ssl:// for MQTTS or tcp:// for MQTT without TLS
+  broker: 'ssl://remote.bro.ker:1884'
+  user: 'export-user'
+  password: 'S3cr3tP4s5w0rD'
+  ca_file: '/etc/ssl/certs/ca-certificates.crt'
+  insecure_ssl: false
+  topic: 'topi/c/for/receival/of/transport/+'
+  # connect and send timeout in seconds
+  timeout: 5
+  # reconnect timeout
+  reconnect_timeout: 60
+  qos: 0
+prometheus:
+  listen: 'localhost:9999'
+  path: '/metrics'
+----
+
+== License
+
+....
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2021 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+....
+
