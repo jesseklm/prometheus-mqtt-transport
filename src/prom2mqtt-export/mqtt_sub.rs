@@ -31,7 +31,7 @@ pub fn run(
                 thread::sleep(one_second);
                 ticktock += 1;
                 warn!(
-                    "retryingo to connect to MQTT broker {} - attempt {}/{}",
+                    "retrying to connect to MQTT broker {} - attempt {}/{}",
                     cfg.mqtt.broker, ticktock, cfg.mqtt.reconnect_timeout
                 );
                 continue;
