@@ -18,7 +18,6 @@ install: strip
 	install -m 0755 target/release/prom2mqtt-fetch $(DESTDIR)/usr/sbin
 	install -m 0644 systemd/prom2mqtt-export.service $(DESTDIR)/lib/systemd/system/
 	install -m 0644 systemd/prom2mqtt-fetch.service $(DESTDIR)/lib/systemd/system/
-	systemctl daemon-reload
 
 uninstall:
 	/bin/rm -f $(DESTDIR)/usr/sbin/prom2mqtt-export $(DESTDIR)/lib/systemd/system/prom2mqtt-export.service
