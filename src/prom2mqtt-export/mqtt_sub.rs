@@ -26,6 +26,10 @@ pub fn run(
                     cfg.mqtt.broker, e
                 );
                 if ticktock > cfg.mqtt.reconnect_timeout {
+                    error!(
+                        "reconnect timer ({} seconds) exceeds reconnect_timeout ({} seconds)",
+                        ticktock, cfg.mqtt.reconnect_timeout
+                    );
                     return Err(Box::new(e));
                 }
                 thread::sleep(one_second);
