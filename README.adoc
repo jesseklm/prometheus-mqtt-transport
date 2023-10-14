@@ -4,11 +4,6 @@
 :stylesheet: asciidoc.css
 :toc: left
 
-== Repositories
-
-* Primary development repository: https://git.ypbind.de/cgit/prometheus-mqtt-transport
-* Backup repository: https://github.com/Bobobo-bo-Bo-bobo/prometheus-mqtt-transport
-
 == Preface
 Prometheus is a reliable tool to observe performance metrics.
 
