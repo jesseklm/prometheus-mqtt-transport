@@ -1,3 +1,5 @@
+=== Fork of https://git.ypbind.de/cgit/prometheus-mqtt-transport/, only Dockerfile added.
+
 = prometheus-mqtt-transport - Scrape Prometheus exporter,  transport data over MQTT and expose transported metric data to Prometheus
 :source-highlighter: rouge
 :rouge-style: gruvbox
